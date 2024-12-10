@@ -50,15 +50,23 @@
             </table>
         </div>
         <div class="summary-details">
-            <h4><?= __('Total Sleep Cycles: ') . $totalSleepCycles ?></h4>
-            <h4><?= __('Average Sleep Cycles: ') . number_format($averageSleepCycles, 2) ?></h4>
-            <h4><?= __('Consecutive Days with >= 5 Cycles: ') . $consecutiveDays ?> <span style="color: <?= $consecutiveDaysIndicator ?>;">●</span></h4>
-            <h4><?= __('Last Record Percentage: ') . number_format($lastRecordPercentage, 2) . '%' ?></h4>
+            <h4><?= __('Total Sleep Cycles: ') ?><span class="stat-value"><?= $totalSleepCycles ?></span></h4>
+            <p class="stat-description"><?= __('Total number of sleep cycles recorded this week.') ?></p>
+
+            <h4><?= __('Average Sleep Cycles: ') ?><span class="stat-value"><?= number_format($averageSleepCycles, 2) ?></span></h4>
+            <p class="stat-description"><?= __('Average number of sleep cycles per day.') ?></p>
+
+            <h4><?= __('Consecutive Days with >= 5 Cycles: ') ?><span class="stat-value"><?= $consecutiveDays ?></span> <span style="color: <?= $consecutiveDaysIndicator ?>;">●</span></h4>
+            <p class="stat-description"><?= __('Number of consecutive days with at least 5 sleep cycles.') ?></p>
+
+            <h4><?= __('Last Record Percentage: ') ?><span class="stat-value"><?= number_format(($lastRecord->sleep_cycles / $averageSleepCycles) * 100, 2) ?>%</span></h4>
+            <p class="stat-description"><?= __('Percentage of sleep cycles from the last recorded day compared to the average sleep cycles per day.') ?></p>
+
             <h4><?= __('Total Cycles Indicator: ') ?><span style="color: <?= $totalCyclesIndicator ?>;">●</span></h4>
+            <p class="stat-description"><?= __('Indicator showing if the total sleep cycles are within a healthy range.') ?></p>
         </div>
         <div class="charts-container">
-            <canvas id="sleepChartWeek" width="200" height="200"></canvas>
-            <canvas id="pieChartWeek" width="200" height="200"></canvas>
+            <canvas id="sleepTrackingChartWeek" width="400" height="200"></canvas>
         </div>
     </div>
 
@@ -92,17 +100,24 @@
                 </tbody>
             </table>
         </div>
-        <div>
-            <h4><?= __('Total Sleep Cycles: ') . $totalSleepCycles ?></h4>
-            <h4><?= __('Average Sleep Cycles: ') . number_format($averageSleepCycles, 2) ?></h4>
-            <h4><?= __('Consecutive Days with >= 5 Cycles: ') . $consecutiveDays ?></h4>
-            <h4><?= __('Last Record Percentage: ') . number_format($lastRecordPercentage, 2) . '%' ?></h4>
+        <div class="summary-details">
+            <h4><?= __('Total Sleep Cycles: ') ?><span class="stat-value"><?= $totalSleepCycles ?></span></h4>
+            <p class="stat-description"><?= __('Total number of sleep cycles recorded this month.') ?></p>
+
+            <h4><?= __('Average Sleep Cycles: ') ?><span class="stat-value"><?= number_format($averageSleepCycles, 2) ?></span></h4>
+            <p class="stat-description"><?= __('Average number of sleep cycles per day.') ?></p>
+
+            <h4><?= __('Consecutive Days with >= 5 Cycles: ') ?><span class="stat-value"><?= $consecutiveDays ?></span> <span style="color: <?= $consecutiveDaysIndicator ?>;">●</span></h4>
+            <p class="stat-description"><?= __('Number of consecutive days with at least 5 sleep cycles.') ?></p>
+
+            <h4><?= __('Last Record Percentage: ') ?><span class="stat-value"><?= number_format(($lastRecord->sleep_cycles / $averageSleepCycles) * 100, 2) ?>%</span></h4>
+            <p class="stat-description"><?= __('Percentage of sleep cycles from the last recorded day compared to the average sleep cycles per day.') ?></p>
+
             <h4><?= __('Total Cycles Indicator: ') ?><span style="color: <?= $totalCyclesIndicator ?>;">●</span></h4>
-            <h4><?= __('Consecutive Days Indicator: ') ?><span style="color: <?= $consecutiveDaysIndicator ?>;">●</span></h4>
+            <p class="stat-description"><?= __('Indicator showing if the total sleep cycles are within a healthy range.') ?></p>
         </div>
         <div class="charts-container">
-            <canvas id="sleepChartMonth" width="200" height="200"></canvas>
-            <canvas id="pieChartMonth" width="200" height="200"></canvas>
+            <canvas id="sleepTrackingChartMonth" width="400" height="200"></canvas>
         </div>
     </div>
 </div>
@@ -110,11 +125,11 @@
 <style>
     .charts-container {
         display: flex;
-        justify-content: space-between;
+        justify-content: center;
+        margin-top: 20px;
     }
     .charts-container canvas {
-        flex: 1;
-        max-width: 45%;
+        max-width: 100%;
     }
     .navigation-buttons {
         margin-bottom: 10px;
@@ -125,10 +140,17 @@
     .month-button {
         display: none;
     }
-
-        .summary-details h4 {
+    .summary-details h4 {
         display: inline-block;
         margin-right: 20px;
+    }
+    .stat-value {
+        font-weight: bold;
+    }
+    .stat-description {
+        margin-bottom: 10px;
+        font-size: 0.9em;
+        color: #555;
     }
 </style>
 
@@ -173,52 +195,52 @@
     }
 
     function initializeCharts(tabName) {
-        var ctx, pieCtx;
+        var ctx;
         if (tabName === 'Week') {
-            ctx = document.getElementById('sleepChartWeek').getContext('2d');
-            pieCtx = document.getElementById('pieChartWeek').getContext('2d');
+            ctx = document.getElementById('sleepTrackingChartWeek').getContext('2d');
         } else {
-            ctx = document.getElementById('sleepChartMonth').getContext('2d');
-            pieCtx = document.getElementById('pieChartMonth').getContext('2d');
+            ctx = document.getElementById('sleepTrackingChartMonth').getContext('2d');
         }
 
         new Chart(ctx, {
-            type: 'line',
+            type: 'bar',
             data: {
                 labels: <?= json_encode(array_map(function($record) { return $record->date; }, $sleepRecords)) ?>,
                 datasets: [{
+                    type: 'bar',
                     label: 'Sleep Cycles',
                     data: <?= json_encode(array_map(function($record) { return $record->sleep_cycles; }, $sleepRecords)) ?>,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
                 }, {
+                    type: 'line',
                     label: 'Mood',
                     data: <?= json_encode(array_map(function($record) { return $record->mood; }, $sleepRecords)) ?>,
                     borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1
+                    borderWidth: 2,
+                    fill: false,
+                    yAxisID: 'y-axis-mood'
                 }]
             },
             options: {
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Sleep Cycles'
+                        }
+                    },
+                    'y-axis-mood': {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Mood'
+                        }
                     }
-                }
-            }
-        });
-
-        new Chart(pieCtx, {
-            type: 'pie',
-            data: {
-                labels: ['Average Sleep Cycles', 'Last Record Sleep Cycles'],
-                datasets: [{
-                    data: [<?= number_format($averageSleepCycles, 2) ?>, <?= $lastRecord ? $lastRecord->sleep_cycles : 0 ?>],
-                    backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(153, 102, 255, 0.6)'],
-                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
+                },
                 responsive: true,
                 plugins: {
                     legend: {
@@ -227,15 +249,11 @@
                     tooltip: {
                         callbacks: {
                             label: function(context) {
-                                var label = context.label || '';
+                                var label = context.dataset.label || '';
                                 if (label) {
                                     label += ': ';
                                 }
-                                var total = context.dataset.data.reduce(function(previousValue, currentValue) {
-                                    return previousValue + currentValue;
-                                });
-                                var percentage = (context.raw / total * 100).toFixed(2);
-                                label += context.raw + ' (' + percentage + '%)';
+                                label += context.raw;
                                 return label;
                             }
                         }
