@@ -12,6 +12,18 @@
  * @var \App\Model\Entity\SleepRecord $lastRecord
  * @var float $lastRecordPercentage
  */
+
+function getMondayAndSunday($date) {
+    $monday = date('Y-m-d', strtotime('monday this week', strtotime($date)));
+    $sunday = date('Y-m-d', strtotime('sunday this week', strtotime($date)));
+    return [$monday, $sunday];
+}
+
+function getMonthName($date) {
+    return date('F', strtotime($date));
+}
+
+$previousMonth = '';
 ?>
 <div class="sleepRecords index content">
     <div class="tab">
@@ -25,6 +37,12 @@
             <?= $this->Html->link(__('Next Week'), ['action' => 'weeklySummary', $weekOffset + 1, 'week'], ['class' => 'button week-button']) ?>
         </div>
         <h3><?= __('Sleep Records - Weekly Summary') ?></h3>
+        <?php if (!empty($sleepRecords)): ?>
+            <?php list($monday, $sunday) = getMondayAndSunday($sleepRecords[0]->date); ?>
+            <h4><?= __('Week from ') . $monday . __(' to ') . $sunday ?></h4>
+        <?php else: ?>
+            <h4><?= __('No sleep records available for this week.') ?></h4>
+        <?php endif; ?>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -38,13 +56,20 @@
                 </thead>
                 <tbody>
                     <?php foreach ($sleepRecords as $sleepRecord): ?>
-                    <tr>
-                        <td><?= h($sleepRecord->date) ?></td>
-                        <td><?= $this->Number->format($sleepRecord->sleep_cycles) ?></td>
-                        <td><?= h($sleepRecord->mood) ?></td>
-                        <td><?= $sleepRecord->sport ? __('Yes') : __('No') ?></td>
-                        <td><?= $this->Html->link(__('View'), ['action' => 'view', $sleepRecord->id]) ?></td>
-                    </tr>
+                        <?php
+                        $currentMonth = getMonthName($sleepRecord->date);
+                        if ($currentMonth !== $previousMonth) {
+                            echo '<tr><td colspan="5"><strong>' . $currentMonth . '</strong></td></tr>';
+                            $previousMonth = $currentMonth;
+                        }
+                        ?>
+                        <tr>
+                            <td><?= h($sleepRecord->date) ?></td>
+                            <td><?= $this->Number->format($sleepRecord->sleep_cycles) ?></td>
+                            <td><?= h($sleepRecord->mood) ?></td>
+                            <td><?= $sleepRecord->sport ? __('Yes') : __('No') ?></td>
+                            <td><?= $this->Html->link(__('View'), ['action' => 'view', $sleepRecord->id]) ?></td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
@@ -59,7 +84,7 @@
             <h4><?= __('Consecutive Days with >= 5 Cycles: ') ?><span class="stat-value"><?= $consecutiveDays ?></span> <span style="color: <?= $consecutiveDaysIndicator ?>;">●</span></h4>
             <p class="stat-description"><?= __('Number of consecutive days with at least 5 sleep cycles.') ?></p>
 
-            <h4><?= __('Last Record Percentage: ') ?><span class="stat-value"><?= number_format(($lastRecord->sleep_cycles / $averageSleepCycles) * 100, 2) ?>%</span></h4>
+            <h4><?= __('Last Record Percentage: ') ?><span class="stat-value"><?= $averageSleepCycles != 0 ? number_format(($lastRecord->sleep_cycles / $averageSleepCycles) * 100, 2) : 'N/A' ?>%</span></h4>
             <p class="stat-description"><?= __('Percentage of sleep cycles from the last recorded day compared to the average sleep cycles per day.') ?></p>
 
             <h4><?= __('Total Cycles Indicator: ') ?><span style="color: <?= $totalCyclesIndicator ?>;">●</span></h4>
@@ -89,13 +114,20 @@
                 </thead>
                 <tbody>
                     <?php foreach ($sleepRecords as $sleepRecord): ?>
-                    <tr>
-                        <td><?= h($sleepRecord->date) ?></td>
-                        <td><?= $this->Number->format($sleepRecord->sleep_cycles) ?></td>
-                        <td><?= h($sleepRecord->mood) ?></td>
-                        <td><?= $sleepRecord->sport ? __('Yes') : __('No') ?></td>
-                        <td><?= $this->Html->link(__('View'), ['action' => 'view', $sleepRecord->id]) ?></td>
-                    </tr>
+                        <?php
+                        $currentMonth = getMonthName($sleepRecord->date);
+                        if ($currentMonth !== $previousMonth) {
+                            echo '<tr><td colspan="5"><strong>' . $currentMonth . '</strong></td></tr>';
+                            $previousMonth = $currentMonth;
+                        }
+                        ?>
+                        <tr>
+                            <td><?= h($sleepRecord->date) ?></td>
+                            <td><?= $this->Number->format($sleepRecord->sleep_cycles) ?></td>
+                            <td><?= h($sleepRecord->mood) ?></td>
+                            <td><?= $sleepRecord->sport ? __('Yes') : __('No') ?></td>
+                            <td><?= $this->Html->link(__('View'), ['action' => 'view', $sleepRecord->id]) ?></td>
+                        </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
@@ -110,7 +142,7 @@
             <h4><?= __('Consecutive Days with >= 5 Cycles: ') ?><span class="stat-value"><?= $consecutiveDays ?></span> <span style="color: <?= $consecutiveDaysIndicator ?>;">●</span></h4>
             <p class="stat-description"><?= __('Number of consecutive days with at least 5 sleep cycles.') ?></p>
 
-            <h4><?= __('Last Record Percentage: ') ?><span class="stat-value"><?= number_format(($lastRecord->sleep_cycles / $averageSleepCycles) * 100, 2) ?>%</span></h4>
+            <h4><?= __('Last Record Percentage: ') ?><span class="stat-value"><?= $averageSleepCycles != 0 ? number_format(($lastRecord->sleep_cycles / $averageSleepCycles) * 100, 2) : 'N/A' ?>%</span></h4>
             <p class="stat-description"><?= __('Percentage of sleep cycles from the last recorded day compared to the average sleep cycles per day.') ?></p>
 
             <h4><?= __('Total Cycles Indicator: ') ?><span style="color: <?= $totalCyclesIndicator ?>;">●</span></h4>
