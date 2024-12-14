@@ -114,6 +114,8 @@ public function index()
 
 public function weeklySummary($weekOffset = 0, $period = 'week')
 {
+    $selectedUserId = $this->request->getQuery('user_id');
+
     if ($period === 'month') {
         $startDate = new \DateTime('first day of this month');
         $startDate->modify("$weekOffset month");
@@ -126,11 +128,17 @@ public function weeklySummary($weekOffset = 0, $period = 'week')
         $endDate->modify('next Sunday');
     }
 
+    $conditions = [
+        'date >=' => $startDate->format('Y-m-d'),
+        'date <=' => $endDate->format('Y-m-d')
+    ];
+
+    if ($selectedUserId) {
+        $conditions['user_id'] = $selectedUserId;
+    }
+
     $sleepRecords = $this->SleepRecords->find('all', [
-        'conditions' => [
-            'date >=' => $startDate->format('Y-m-d'),
-            'date <=' => $endDate->format('Y-m-d')
-        ]
+        'conditions' => $conditions
     ])->toArray();
 
     $totalSleepCycles = array_sum(array_map(function($record) {
@@ -155,6 +163,8 @@ public function weeklySummary($weekOffset = 0, $period = 'week')
     $totalCyclesIndicator = $totalSleepCycles >= 42 ? 'green' : 'red';
     $consecutiveDaysIndicator = $consecutiveDays >= 4 ? 'green' : 'red';
 
-    $this->set(compact('sleepRecords', 'totalSleepCycles', 'averageSleepCycles', 'consecutiveDays', 'totalCyclesIndicator', 'consecutiveDaysIndicator', 'weekOffset', 'period'));
+    $users = $this->SleepRecords->Users->find('list')->toArray();
+
+    $this->set(compact('sleepRecords', 'totalSleepCycles', 'averageSleepCycles', 'consecutiveDays', 'totalCyclesIndicator', 'consecutiveDaysIndicator', 'weekOffset', 'period', 'users', 'selectedUserId'));
 }
 }

@@ -9,6 +9,8 @@
  * @var int $consecutiveDays
  * @var string $totalCyclesIndicator
  * @var string $consecutiveDaysIndicator
+ * @var \Cake\Collection\CollectionInterface|string[] $users
+ * @var int|null $selectedUserId
  */
 
 function getMondayAndSunday($date) {
@@ -29,10 +31,17 @@ $previousMonth = '';
         <button class="tablinks" onclick="openTab('month')"><?= __('Monthly Summary') ?></button>
     </div>
 
+    <div class="filter-form">
+        <?= $this->Form->create(null, ['type' => 'get']) ?>
+        <?= $this->Form->control('user_id', ['options' => $users, 'empty' => 'All Users', 'default' => $selectedUserId]) ?>
+        <?= $this->Form->button(__('Filter')) ?>
+        <?= $this->Form->end() ?>
+    </div>
+
     <div id="Week" class="tabcontent" style="display: <?= $period === 'week' ? 'block' : 'none' ?>;">
         <div class="navigation-buttons">
-            <?= $this->Html->link(__('Previous Week'), ['action' => 'weeklySummary', $weekOffset - 1, 'week'], ['class' => 'button week-button']) ?>
-            <?= $this->Html->link(__('Next Week'), ['action' => 'weeklySummary', $weekOffset + 1, 'week'], ['class' => 'button week-button']) ?>
+            <?= $this->Html->link(__('Previous Week'), ['action' => 'weeklySummary', $weekOffset - 1, 'week', '?' => ['user_id' => $selectedUserId]], ['class' => 'button week-button']) ?>
+            <?= $this->Html->link(__('Next Week'), ['action' => 'weeklySummary', $weekOffset + 1, 'week', '?' => ['user_id' => $selectedUserId]], ['class' => 'button week-button']) ?>
         </div>
         <h3><?= __('Sleep Records - Weekly Summary') ?></h3>
         <?php if (!empty($sleepRecords)): ?>
@@ -92,8 +101,8 @@ $previousMonth = '';
 
     <div id="Month" class="tabcontent" style="display: <?= $period === 'month' ? 'block' : 'none' ?>;">
         <div class="navigation-buttons">
-            <?= $this->Html->link(__('Previous Month'), ['action' => 'weeklySummary', $weekOffset - 1, 'month'], ['class' => 'button month-button']) ?>
-            <?= $this->Html->link(__('Next Month'), ['action' => 'weeklySummary', $weekOffset + 1, 'month'], ['class' => 'button month-button']) ?>
+            <?= $this->Html->link(__('Previous Month'), ['action' => 'weeklySummary', $weekOffset - 1, 'month', '?' => ['user_id' => $selectedUserId]], ['class' => 'button month-button']) ?>
+            <?= $this->Html->link(__('Next Month'), ['action' => 'weeklySummary', $weekOffset + 1, 'month', '?' => ['user_id' => $selectedUserId]], ['class' => 'button month-button']) ?>
         </div>
         <h3><?= __('Sleep Records - Monthly Summary') ?></h3>
         <div class="table-responsive">
@@ -138,7 +147,7 @@ $previousMonth = '';
             <p class="stat-description"><?= __('Number of consecutive days with at least 5 sleep cycles.') ?></p>
 
             <h4><?= __('Total Cycles Indicator: ') ?><span style="color: <?= $totalCyclesIndicator ?>;">●</span></h4>
-            <p class="stat-description"><?= __('Indicator showing if the total sleep cycles are within a healthy range.') ?></p>
+            <p class="stat-description"><?= __('Indicator showing if the total sleep cycles are within a healthy range.  (>=42 cycle)') ?></p>
         </div>
         <div class="charts-container">
             <canvas id="sleepTrackingChartMonth" width="400" height="200"></canvas>
@@ -175,9 +184,9 @@ $previousMonth = '';
 <script>
     function openTab(tabName) {
         if (tabName === 'week') {
-            window.location.href = '<?= $this->Url->build(['action' => 'weeklySummary', 0, 'week']) ?>';
+            window.location.href = '<?= $this->Url->build(['action' => 'weeklySummary', 0, 'week', '?' => ['user_id' => $selectedUserId]]) ?>';
         } else if (tabName === 'month') {
-            window.location.href = '<?= $this->Url->build(['action' => 'weeklySummary', 0, 'month']) ?>';
+            window.location.href = '<?= $this->Url->build(['action' => 'weeklySummary', 0, 'month', '?' => ['user_id' => $selectedUserId]]) ?>';
         }
     }
 
