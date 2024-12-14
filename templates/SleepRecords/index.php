@@ -7,14 +7,9 @@ $weekOffset = $weekOffset ?? 0; // Définir une valeur par défaut si $weekOffse
 ?>
 <div class="sleepRecords index content">
     <?= $this->Html->link(__('New Sleep Record'), ['action' => 'add'], ['class' => 'button float-right']) ?>
-    <div class="tab">
-        <button class="tablinks" onclick="openTab(event, 'Week')"><?= __('Weekly Summary') ?></button>
-        <button class="tablinks" onclick="openTab(event, 'Month')"><?= __('Monthly Summary') ?></button>
-    </div>
+    <?= $this->Html->link(__('Weekly Summary'), ['action' => 'weeklySummary'], ['class' => 'button float-right']) ?>
 
     <div id="Week" class="tabcontent">
-        <?= $this->Html->link(__('Previous Week'), ['action' => 'weeklySummary', $weekOffset - 1, 'week'], ['class' => 'button']) ?>
-        <?= $this->Html->link(__('Next Week'), ['action' => 'weeklySummary', $weekOffset + 1, 'week'], ['class' => 'button']) ?>
         <h3><?= __('Sleep Records - Weekly Summary') ?></h3>
         <div class="table-responsive">
             <table>
@@ -40,14 +35,14 @@ $weekOffset = $weekOffset ?? 0; // Définir une valeur par défaut si $weekOffse
                         <td><?= $this->Number->format($sleepRecord->id) ?></td>
                         <td><?= $sleepRecord->hasValue('user') ? $this->Html->link($sleepRecord->user->username, ['controller' => 'Users', 'action' => 'view', $sleepRecord->user->id]) : '' ?></td>
                         <td><?= h($sleepRecord->date) ?></td>
-                        <td><?= h($sleepRecord->bedtime) ?></td>
-                        <td><?= h($sleepRecord->wakeup_time) ?></td>
+                        <td><?= h($sleepRecord->bedtime->format('H:i:s')) ?></td>
+                        <td><?= h($sleepRecord->wakeup_time->format('H:i:s')) ?></td>
                         <td><?= h($sleepRecord->nap_afternoon) ?></td>
                         <td><?= h($sleepRecord->nap_evening) ?></td>
                         <td><?= $this->Number->format($sleepRecord->mood) ?></td>
                         <td><?= h($sleepRecord->sport) ?></td>
-                        <td><?= h($sleepRecord->created) ?></td>
-                        <td><?= h($sleepRecord->modified) ?></td>
+                        <td><?= h($sleepRecord->created->format('Y-m-d H:i:s')) ?></td>
+                        <td><?= h($sleepRecord->modified->format('Y-m-d H:i:s')) ?></td>
                         <td class="actions">
                             <?= $this->Html->link(__('View'), ['action' => 'view', $sleepRecord->id]) ?>
                             <?= $this->Html->link(__('Edit'), ['action' => 'edit', $sleepRecord->id]) ?>
@@ -61,8 +56,6 @@ $weekOffset = $weekOffset ?? 0; // Définir une valeur par défaut si $weekOffse
     </div>
 
     <div id="Month" class="tabcontent">
-        <?= $this->Html->link(__('Previous Month'), ['action' => 'weeklySummary', $weekOffset - 1, 'month'], ['class' => 'button']) ?>
-        <?= $this->Html->link(__('Next Month'), ['action' => 'weeklySummary', $weekOffset + 1, 'month'], ['class' => 'button']) ?>
         <h3><?= __('Sleep Records - Monthly Summary') ?></h3>
         <div class="table-responsive">
             <table>
@@ -88,14 +81,14 @@ $weekOffset = $weekOffset ?? 0; // Définir une valeur par défaut si $weekOffse
                         <td><?= $this->Number->format($sleepRecord->id) ?></td>
                         <td><?= $sleepRecord->hasValue('user') ? $this->Html->link($sleepRecord->user->username, ['controller' => 'Users', 'action' => 'view', $sleepRecord->user->id]) : '' ?></td>
                         <td><?= h($sleepRecord->date) ?></td>
-                        <td><?= h($sleepRecord->bedtime) ?></td>
-                        <td><?= h($sleepRecord->wakeup_time) ?></td>
+                        <td><?= h($sleepRecord->bedtime->format('H:i:s')) ?></td>
+                        <td><?= h($sleepRecord->wakeup_time->format('H:i:s')) ?></td>
                         <td><?= h($sleepRecord->nap_afternoon) ?></td>
                         <td><?= h($sleepRecord->nap_evening) ?></td>
                         <td><?= $this->Number->format($sleepRecord->mood) ?></td>
                         <td><?= h($sleepRecord->sport) ?></td>
-                        <td><?= h($sleepRecord->created) ?></td>
-                        <td><?= h($sleepRecord->modified) ?></td>
+                        <td><?= h($sleepRecord->created->format('Y-m-d H:i:s')) ?></td>
+                        <td><?= h($sleepRecord->modified->format('Y-m-d H:i:s')) ?></td>
                         <td class="actions">
                             <?= $this->Html->link(__('View'), ['action' => 'view', $sleepRecord->id]) ?>
                             <?= $this->Html->link(__('Edit'), ['action' => 'edit', $sleepRecord->id]) ?>

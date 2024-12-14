@@ -24,7 +24,7 @@
                     echo $this->Form->control('wakeup_time');
                     echo $this->Form->control('nap_afternoon');
                     echo $this->Form->control('nap_evening');
-                    echo $this->Form->control('mood');
+                    echo $this->Form->control('mood', ['type' => 'number', 'max' => 10]);
                     echo $this->Form->control('comment');
                     echo $this->Form->control('sport');
                 ?>

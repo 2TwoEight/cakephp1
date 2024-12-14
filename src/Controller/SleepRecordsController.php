@@ -145,12 +145,6 @@ public function weeklySummary($weekOffset = 0, $period = 'week')
     $totalCyclesIndicator = $totalSleepCycles >= 42 ? 'green' : 'red';
     $consecutiveDaysIndicator = $consecutiveDays >= 4 ? 'green' : 'red';
 
-    $lastRecord = $this->SleepRecords->find('all', [
-        'order' => ['date' => 'DESC']
-    ])->first();
-
-    $lastRecordPercentage = $totalSleepCycles > 0 && $lastRecord ? ($lastRecord->sleep_cycles / $totalSleepCycles) * 100 : 0;
-
-    $this->set(compact('sleepRecords', 'totalSleepCycles', 'averageSleepCycles', 'consecutiveDays', 'totalCyclesIndicator', 'consecutiveDaysIndicator', 'weekOffset', 'lastRecord', 'lastRecordPercentage', 'period'));
+    $this->set(compact('sleepRecords', 'totalSleepCycles', 'averageSleepCycles', 'consecutiveDays', 'totalCyclesIndicator', 'consecutiveDaysIndicator', 'weekOffset', 'period'));
 }
 }
