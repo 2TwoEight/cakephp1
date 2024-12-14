@@ -15,14 +15,24 @@ class SleepRecordsController extends AppController
      *
      * @return \Cake\Http\Response|null|void Renders view
      */
-    public function index()
-    {
-        $query = $this->SleepRecords->find()
-            ->contain(['Users']);
-        $sleepRecords = $this->paginate($query);
+public function index()
+{
+    $selectedUserId = $this->request->getQuery('user_id');
 
-        $this->set(compact('sleepRecords'));
+    $conditions = [];
+    if ($selectedUserId) {
+        $conditions['user_id'] = $selectedUserId;
     }
+
+    $query = $this->SleepRecords->find()
+        ->contain(['Users'])
+        ->where($conditions);
+    $sleepRecords = $this->paginate($query);
+
+    $users = $this->SleepRecords->Users->find('list')->toArray();
+
+    $this->set(compact('sleepRecords', 'users', 'selectedUserId'));
+}
 
     /**
      * View method
