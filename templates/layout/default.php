@@ -38,15 +38,21 @@
                     <h4><?= __('Menu') ?></h4>
                     <ul id="sortable-menu">
                         <?php
+                        // Load the 'Menus' table using TableRegistry
                         $menusTable = \Cake\ORM\TableRegistry::getTableLocator()->get('Menus');
-                        $menus = $menusTable->find() ->order(['ordre' => 'ASC'])->toArray();
 
+                        // Fetch the menus, ordered by the 'ordre' field in ascending order
+                        $menus = $menusTable->find()->order(['ordre' => 'ASC'])->toArray();
+
+                        // Loop through each menu item
                         foreach ($menus as $menu): ?>
                             <li class="ui-state-default" data-id="<?= $menu->id ?>">
+                                <!-- Create a link to the menu item -->
                                 <?= $this->Html->link($menu->intitule, $menu->lien) ?>
                             </li>
                         <?php endforeach; ?>
                     </ul>
+
                 </div>
                 <div class="column column-80">
                     <?= $this->Flash->render() ?>
@@ -80,6 +86,6 @@
         });
         $("#sortable-menu").disableSelection();
     });
-    </script>   
+    </script>
 </body>
 </html>

@@ -15,24 +15,24 @@ class SleepRecordsController extends AppController
      *
      * @return \Cake\Http\Response|null|void Renders view
      */
-public function index()
-{
-    $selectedUserId = $this->request->getQuery('user_id');
+    public function index()
+    {
+        $selectedUserId = $this->request->getQuery('user_id');
 
-    $conditions = [];
-    if ($selectedUserId) {
-        $conditions['user_id'] = $selectedUserId;
+        $conditions = [];
+        if ($selectedUserId) {
+            $conditions['user_id'] = $selectedUserId;
+        }
+
+        $query = $this->SleepRecords->find()
+            ->contain(['Users'])
+            ->where($conditions);
+        $sleepRecords = $this->paginate($query);
+
+        $users = $this->SleepRecords->Users->find('list')->toArray();
+
+        $this->set(compact('sleepRecords', 'users', 'selectedUserId'));
     }
-
-    $query = $this->SleepRecords->find()
-        ->contain(['Users'])
-        ->where($conditions);
-    $sleepRecords = $this->paginate($query);
-
-    $users = $this->SleepRecords->Users->find('list')->toArray();
-
-    $this->set(compact('sleepRecords', 'users', 'selectedUserId'));
-}
 
     /**
      * View method
@@ -111,60 +111,57 @@ public function index()
         return $this->redirect(['action' => 'index']);
     }
 
+    public function weeklySummary($weekOffset = 0, $period = 'week')
+    {
+        $selectedUserId = $this->request->getQuery('user_id');
 
-public function weeklySummary($weekOffset = 0, $period = 'week')
-{
-    $selectedUserId = $this->request->getQuery('user_id');
-
-    if ($period === 'month') {
-        $startDate = new \DateTime('first day of this month');
-        $startDate->modify("$weekOffset month");
-        $endDate = clone $startDate;
-        $endDate->modify('last day of this month');
-    } else {
-        $startDate = new \DateTime('last Monday');
-        $startDate->modify("$weekOffset week");
-        $endDate = clone $startDate;
-        $endDate->modify('next Sunday');
-    }
-
-    $conditions = [
-        'date >=' => $startDate->format('Y-m-d'),
-        'date <=' => $endDate->format('Y-m-d')
-    ];
-
-    if ($selectedUserId) {
-        $conditions['user_id'] = $selectedUserId;
-    }
-
-    $sleepRecords = $this->SleepRecords->find('all', [
-        'conditions' => $conditions
-    ])->toArray();
-
-    $totalSleepCycles = array_sum(array_map(function($record) {
-        return $record->sleep_cycles;
-    }, $sleepRecords));
-
-    $averageSleepCycles = count($sleepRecords) > 0 ? $totalSleepCycles / count($sleepRecords) : 0;
-
-    $consecutiveDays = 0;
-    $currentStreak = 0;
-    foreach ($sleepRecords as $record) {
-        if ($record->sleep_cycles >= 5) {
-            $currentStreak++;
-            if ($currentStreak > $consecutiveDays) {
-                $consecutiveDays = $currentStreak;
-            }
+        if ($period === 'month') {
+            $startDate = new \DateTime('first day of this month');
+            $startDate->modify("$weekOffset month");
+            $endDate = clone $startDate;
+            $endDate->modify('last day of this month');
         } else {
-            $currentStreak = 0;
+            $startDate = new \DateTime('last Monday');
+            $startDate->modify("$weekOffset week");
+            $endDate = clone $startDate;
+            $endDate->modify('next Sunday');
         }
+
+        $conditions = [
+            'date >=' => $startDate->format('Y-m-d'),
+            'date <=' => $endDate->format('Y-m-d')
+        ];
+
+        if ($selectedUserId) {
+            $conditions['user_id'] = $selectedUserId;
+        }
+
+        $sleepRecords = $this->SleepRecords->find('all', conditions: $conditions)->toArray();
+
+        $totalSleepCycles = array_sum(array_map(function($record) {
+            return $record->sleep_cycles;
+        }, $sleepRecords));
+
+        $averageSleepCycles = count($sleepRecords) > 0 ? $totalSleepCycles / count($sleepRecords) : 0;
+
+        $consecutiveDays = 0;
+        $currentStreak = 0;
+        foreach ($sleepRecords as $record) {
+            if ($record->sleep_cycles >= 5) {
+                $currentStreak++;
+                if ($currentStreak > $consecutiveDays) {
+                    $consecutiveDays = $currentStreak;
+                }
+            } else {
+                $currentStreak = 0;
+            }
+        }
+
+        $totalCyclesIndicator = $totalSleepCycles >= 42 ? 'green' : 'red';
+        $consecutiveDaysIndicator = $consecutiveDays >= 4 ? 'green' : 'red';
+
+        $users = $this->SleepRecords->Users->find('list')->toArray();
+
+        $this->set(compact('sleepRecords', 'totalSleepCycles', 'averageSleepCycles', 'consecutiveDays', 'totalCyclesIndicator', 'consecutiveDaysIndicator', 'weekOffset', 'period', 'users', 'selectedUserId'));
     }
-
-    $totalCyclesIndicator = $totalSleepCycles >= 42 ? 'green' : 'red';
-    $consecutiveDaysIndicator = $consecutiveDays >= 4 ? 'green' : 'red';
-
-    $users = $this->SleepRecords->Users->find('list')->toArray();
-
-    $this->set(compact('sleepRecords', 'totalSleepCycles', 'averageSleepCycles', 'consecutiveDays', 'totalCyclesIndicator', 'consecutiveDaysIndicator', 'weekOffset', 'period', 'users', 'selectedUserId'));
-}
 }

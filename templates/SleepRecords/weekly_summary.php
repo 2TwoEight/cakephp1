@@ -26,7 +26,7 @@ function getMonthName($date) {
 $previousMonth = '';
 ?>
 <div class="sleepRecords index content">
-        <div class="filter-form">
+    <div class="filter-form">
         <?= $this->Form->create(null, ['type' => 'get']) ?>
         <?= $this->Form->control('user_id', ['options' => $users, 'empty' => 'All Users', 'default' => $selectedUserId]) ?>
         <?= $this->Form->button(__('Filter')) ?>
@@ -34,13 +34,11 @@ $previousMonth = '';
     </div>
 
     <br>
-    
+
     <div class="tab">
         <button class="tablinks" onclick="openTab('week')"><?= __('Weekly Summary') ?></button>
         <button class="tablinks" onclick="openTab('month')"><?= __('Monthly Summary') ?></button>
     </div>
-
-
 
     <div id="Week" class="tabcontent" style="display: <?= $period === 'week' ? 'block' : 'none' ?>;">
         <div class="navigation-buttons">
