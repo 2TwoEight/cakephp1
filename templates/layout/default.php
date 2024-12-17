@@ -39,7 +39,8 @@
                     <ul id="sortable-menu">
                         <?php
                         $menusTable = \Cake\ORM\TableRegistry::getTableLocator()->get('Menus');
-                        $menus = $menusTable->find('all', ['order' => ['ordre' => 'ASC']])->toArray();
+                        $menus = $menusTable->find() ->order(['ordre' => 'ASC'])->toArray();
+
                         foreach ($menus as $menu): ?>
                             <li class="ui-state-default" data-id="<?= $menu->id ?>">
                                 <?= $this->Html->link($menu->intitule, $menu->lien) ?>
